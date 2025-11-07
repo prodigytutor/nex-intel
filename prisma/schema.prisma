@@ -1,0 +1,288 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+enum Deployment {
+  CLOUD
+  SELF_HOSTED
+  HYBRID
+}
+
+enum PricingModel {
+  SUBSCRIPTION
+  USAGE_BASED
+  FREEMIUM
+  ONE_TIME
+  TIERED
+}
+
+enum SalesMotion {
+  PRODUCT_LED
+  SALES_LED
+  ENTERPRISE
+  SELF_SERVE
+  MIXED
+}
+
+model Project {
+  id              String        @id @default(cuid())
+  userId          String?
+  user            User?          @relation(fields: [userId], references:[id])
+  name            String
+  category        String?
+  description     String?
+  createdAt       DateTime      @default(now())
+
+  // New “open to all industries” fields
+  industry        String?       // e.g., "Fintech", "DevTools", "Ecommerce", "Healthcare"
+  subIndustry     String?       // e.g., "Payments", "Observability", "Email Marketing"
+  targetSegments  String[]      // e.g., ["SMB", "Mid-market", "Enterprise"], ["Developers"]
+  regions         String[]      // e.g., ["US", "EU", "APAC"]
+  deployment      Deployment?
+  pricingModel    PricingModel?
+  salesMotion     SalesMotion?
+  complianceNeeds String[]      // e.g., ["SOC 2", "HIPAA", "GDPR"]
+  projectInputs   ProjectInput[]
+  inputs          Json?
+  runs            Run[]
+  reports         Report[]
+}
+
+
+model Capability {
+  id        String   @id @default(cuid())
+  runId     String
+  run       Run      @relation(fields: [runId], references: [id])
+  category  String   // e.g., "Integrations", "Security", "Compliance", "API", "Performance"
+  name      String
+  competitorCapabilities  CompetitorCapability[]
+  normalized String
+}
+
+model CompetitorCapability {
+  id            String   @id @default(cuid())
+  runId         String
+  run           Run      @relation(fields: [runId], references: [id])
+  competitorId  String?
+  competitor    Competitor? @relation(fields: [competitorId], references: [id])
+  capabilityId  String
+  capability    Capability @relation(fields: [capabilityId], references: [id])
+  evidenceId    String?
+  present       Boolean  @default(true)
+}
+
+model Integration {
+  id        String   @id @default(cuid())
+  runId     String
+  run       Run      @relation(fields: [runId], references: [id])
+  name      String
+  vendor    String?
+  category  String?  // e.g., "CRM", "Payments", "Analytics"
+  url       String?
+}
+
+model ComplianceItem {
+  id        String   @id @default(cuid())
+  runId     String
+  run       Run      @relation(fields: [runId], references: [id])
+  framework String   // "SOC 2", "GDPR", "HIPAA", "PCI-DSS"
+  status    String?  // "Compliant", "Claims compliant", "Roadmap"
+  notes     String?
+}
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects  Project[]
+}
+
+
+model ProjectInput {
+  id          String   @id @default(cuid())
+  projectId   String   @unique
+  problem     String?
+  solution    String?
+  project     Project    @relation(fields: [projectId], references: [id])
+  notes       String?  // reviewer notesd
+  platforms   String[]
+  priceTarget String?
+  keywords    String[]
+  competitors String[]
+  urls        String[]
+}
+
+model Run {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  status      String   @default("PENDING") // PENDING, DISCOVERING, EXTRACTING, SYNTHESIZING, QA, COMPLETE, FAILED
+  startedAt   DateTime?
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+  qaSummary   String?
+  qaIssue     String?
+lastNote       String?  // reviewer notesd
+competitorCapabilities  CompetitorCapability[]
+  capabilities  Capability[]
+  sources     Source[]
+  competitors Competitor[]
+  features    Feature[]
+  evidences   Evidence[]
+  pricing     PricingPoint[]
+  findings    Finding[]
+  reports     Report[]
+  integrations  Integration[]
+ complianceItems ComplianceItem[]
+ logs RunLog[]
+}
+
+
+model Source {
+  id        String   @id @default(cuid())
+  runId     String
+  run       Run      @relation(fields: [runId], references: [id])
+  url       String
+  title     String?
+  domain    String?
+  fetchedAt DateTime
+  content   String?
+  status    String   // OK, ERROR, SKIPPED
+  notes       String?  // reviewer notesd
+  features  Feature[]
+  evidences Evidence[]
+  meta      Json?
+}
+
+model Competitor {
+  id          String   @id @default(cuid())
+  runId       String
+  run         Run      @relation(fields: [runId], references: [id])
+  name        String
+  website     String?
+  category    String?
+  description String?
+  isPrimary   Boolean  @default(false)
+  meta        Json?
+  notes       String?  // reviewer notesd
+  pricingPoints PricingPoint[]
+  evidences   Evidence[]
+competitorCapabilities  CompetitorCapability[]
+  @@unique([runId, name])
+}
+
+model Feature {
+  id           String   @id @default(cuid())
+  runId        String
+  run          Run      @relation(fields: [runId], references: [id])
+  name         String
+  normalized   String
+  description  String?
+  notes       String?  // reviewer notesd
+  evidences    Evidence[] 
+  sourceId     String
+  source       Source   @relation(fields: [sourceId], references: [id])
+}
+
+model PricingPoint {
+  id             String   @id @default(cuid())
+  approved    Boolean  @default(false) // human-in-the-loop approval
+  runId          String
+  run            Run      @relation(fields: [runId], references: [id])
+  competitorId   String
+  competitor     Competitor @relation(fields: [competitorId], references: [id])
+  planName       String
+  priceMonthly   Float?
+  priceAnnual    Float?
+  transactionFee Float?
+  notes          String?
+  currency       String?  @default("USD")
+  meta           Json?
+}
+
+model Evidence {
+  id           String   @id @default(cuid())
+  runId        String
+  run          Run      @relation(fields: [runId], references: [id])
+  competitorId String?
+  competitor   Competitor? @relation(fields: [competitorId], references: [id])
+  featureId    String?
+  feature      Feature?  @relation(fields: [featureId], references: [id])
+  sourceId     String
+  source       Source    @relation(fields: [sourceId], references: [id])
+  quote        String
+  notes       String?  // reviewer notesd
+  selector     String?
+  confidence   Float
+  publishedAt  DateTime?
+}
+
+model Finding {
+  id          String   @id @default(cuid())
+  runId       String
+  run         Run      @relation(fields: [runId], references: [id])
+  kind        String   // COMMON_FEATURE, GAP, DIFFERENTIATOR, RISK, RECOMMENDATION
+  text        String
+  citations   String[]
+  confidence  Float
+  approved    Boolean  @default(false) // human-in-the-loop approval
+  notes       String?  // reviewer notes
+}
+
+model Report {
+  id         String   @id @default(cuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id])
+  runId      String
+  run        Run      @relation(fields: [runId], references: [id])
+  headline   String
+  mdContent  String
+  format     String   // MARKDOWN, PDF, NOTION
+  createdAt  DateTime @default(now())
+  approved   Boolean  @default(false)
+}
+
+model Job {
+  id         String   @id @default(cuid())
+  kind       String   // ORCHESTRATE_RUN
+  payload    Json
+  status     String   @default("PENDING") // PENDING, RUNNING, DONE, ERROR
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lastError  String?
+}
+
+model CreditLedger {
+  id        String   @id @default(cuid())
+  userId    String
+  month     String   // "2025-11"
+  used      Int      @default(0)
+  limit     Int      @default(1000)
+  updatedAt DateTime @updatedAt
+}
+model AppSetting {
+  key       String  @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+model RunLog {
+  id    String @id @default(cuid())
+  runId  String
+  line   String?
+  run     Run @relation(fields: [runId], references: [id])
+    createdAt  DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
