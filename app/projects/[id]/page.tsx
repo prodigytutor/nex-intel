@@ -74,6 +74,8 @@ useEffect(() => {
         </div>
       </header>
 
+      <MonitoringToggle projectId={projectId} />
+
       <div className="card overflow-auto">
         <table className="min-w-full text-sm">
           <thead className="bg-black/5">
