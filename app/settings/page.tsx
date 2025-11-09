@@ -44,6 +44,13 @@ export default function SettingsPage() {
 
   return (
     <main className="max-w-3xl space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Settings', current: true }
+        ]}
+      />
+
       <header>
         <h1 className="text-2xl font-semibold">Settings</h1>
         <p className="text-sm text-gray-600">Manage integrations and QA guardrails. All changes affect new runs.</p>
