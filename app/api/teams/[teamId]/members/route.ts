@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAuth } from '@/lib/auth';
+import {
+  requireCanInviteMembers,
+  canAssignRole,
+  getUserTeamRole
+} from '@/lib/rbac';
+import { HttpError } from '@/lib/http';
 
 export async function GET(
   request: NextRequest,
