@@ -107,7 +107,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  projects  Project[]
+  projects      Project[]
+  teamMembers   TeamMember[]
+  comments      Comment[]
+  activities    Activity[]
+  notifications Notification[]
 }
 
 
