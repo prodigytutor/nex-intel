@@ -1,5 +1,12 @@
 import Link from 'next/link';
-import { ChevronRightIcon } from '@heroicons/react/20/solid';
+
+function ChevronRightIcon() {
+  return (
+    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m9 5 7 7-7m-7 7 7 7" />
+    </svg>
+  );
+}
 
 interface BreadcrumbItem {
   label: string;
