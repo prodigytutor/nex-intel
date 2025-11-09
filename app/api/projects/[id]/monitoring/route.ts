@@ -26,6 +26,22 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     // Schedule monitoring
     const taskId = await scheduleProjectMonitoring(projectId, user.id);
 
+    // Send confirmation email
+    try {
+      const nextRun = scheduler.getNextTaskTime();
+      if (nextRun && user.email) {
+        await sendMonitoringSetupNotification(
+          user.email,
+          user.name || 'User',
+          project.name,
+          nextRun.toISOString()
+        );
+      }
+    } catch (emailError) {
+      console.error('Failed to send monitoring confirmation email:', emailError);
+      // Don't fail the request if email fails
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Project monitoring scheduled',
