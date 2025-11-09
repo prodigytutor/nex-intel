@@ -236,51 +236,41 @@ This notification was sent by IntelBox - Evidence-first competitive intelligence
 }
 
 /**
- * Send email notification (placeholder implementation)
- * In production, this would integrate with a service like Resend, SendGrid, or AWS SES
+ * Send email notification using the configured email service
+ * Integrates with Resend, SendGrid, or AWS SES based on configuration
  */
 export async function sendEmail(to: string, template: EmailTemplate): Promise<boolean> {
   try {
-    // TODO: Implement actual email sending
-    // For now, we'll log the email details
-
-    console.log(`[Email] Would send email to: ${to}`);
+    // Log email details for debugging
+    console.log(`[Email] Sending email to: ${to}`);
     console.log(`[Email] Subject: ${template.subject}`);
     console.log(`[Email] HTML length: ${template.html.length} characters`);
-    console.log(`[Email] Text length: ${template.text.length} characters`);
 
-    // Example implementation with Resend:
-    /*
-    if (process.env.RESEND_API_KEY) {
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: process.env.FROM_EMAIL || 'noreply@intelbox.app',
-          to: [to],
-          subject: template.subject,
-          html: template.html,
-          text: template.text,
-        }),
-      });
+    // Get the configured email service
+    const emailService = getEmailService();
 
-      if (!response.ok) {
-        throw new Error(`Email API error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log(`[Email] Sent successfully: ${data.id}`);
-      return true;
+    // Check if email service is properly configured
+    const isValid = await emailService.validateConfig();
+    if (!isValid) {
+      console.warn('[Email] Email service not properly configured, skipping email send');
+      return false;
     }
-    */
 
-    // For development, we'll return true to simulate successful sending
+    // Create email message
+    const emailMessage: EmailMessage = {
+      to,
+      subject: template.subject,
+      html: template.html,
+    };
+
+    // Send the email
+    const result = await emailService.send(emailMessage);
+    console.log(`[Email] Sent successfully: ${result.id}`);
     return true;
+
   } catch (error) {
     console.error('[Email] Failed to send email:', error);
+    // Return false instead of throwing to avoid breaking workflows
     return false;
   }
 }
