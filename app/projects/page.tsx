@@ -78,6 +78,13 @@ export default function ProjectsPage() {
 
   return (
     <main className="space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Projects', current: true }
+        ]}
+      />
+
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Projects</h1>
