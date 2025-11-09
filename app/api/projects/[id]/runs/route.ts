@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { json, HttpError } from '@/lib/http';
 import { requireAuth } from '@/lib/auth';
+import { requireCanViewProject } from '@/lib/rbac';
 
 export async function GET(_: Request, ctx: { params: Promise<{ id: string }> }) {
   try {
