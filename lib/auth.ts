@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import { AuthenticationError } from '@/lib/errors';
 
 /**
  * Get the current authenticated user from Supabase
