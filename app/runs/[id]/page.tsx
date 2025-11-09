@@ -280,7 +280,75 @@ export default function RunPage({ params }: { params: Promise<{ id: string }> })
         <>
           <Tabs tabs={tabs} active={tab} onTab={setTab} />
           <div className="mt-4">
-            {report ? (
+            {tab === 'AI Insights' ? (
+              <div className="space-y-4">
+                {loadingInsights ? (
+                  <div className="flex justify-center py-8">
+                    <LoadingSpinner text="Loading AI insights..." />
+                  </div>
+                ) : aiInsights.length === 0 ? (
+                  <div className="card p-8 text-center">
+                    <div className="text-gray-400 text-5xl mb-4">🤖</div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No AI Insights Available</h3>
+                    <p className="text-gray-600">AI-powered insights will appear here once the analysis is complete.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {aiInsights.map((insight) => (
+                      <div key={insight.id} className="card p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl">
+                              {insight.type === 'TREND' ? '📈' :
+                               insight.type === 'PREDICTION' ? '🔮' :
+                               insight.type === 'RECOMMENDATION' ? '💡' :
+                               insight.type === 'ANOMALY' ? '⚠️' : '🤖'}
+                            </span>
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{insight.title}</h4>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                  insight.type === 'TREND' ? 'bg-blue-100 text-blue-800' :
+                                  insight.type === 'PREDICTION' ? 'bg-purple-100 text-purple-800' :
+                                  insight.type === 'RECOMMENDATION' ? 'bg-green-100 text-green-800' :
+                                  insight.type === 'ANOMALY' ? 'bg-red-100 text-red-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {insight.type}
+                                </span>
+                                <span className={`text-xs font-medium ${
+                                  insight.confidence >= 0.8 ? 'text-green-600' :
+                                  insight.confidence >= 0.6 ? 'text-yellow-600' :
+                                  'text-red-600'
+                                }`}>
+                                  {Math.round(insight.confidence * 100)}% confidence
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <span className="text-xs text-gray-500">
+                            {new Date(insight.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-gray-700 leading-relaxed">{insight.content}</p>
+                        {insight.metadata && (
+                          <div className="mt-4 pt-4 border-t border-gray-100">
+                            <details className="text-sm">
+                              <summary className="cursor-pointer text-gray-600 hover:text-gray-800">
+                                View AI metadata
+                              </summary>
+                              <pre className="mt-2 text-xs text-gray-500 bg-gray-50 p-2 rounded overflow-auto">
+                                {JSON.stringify(insight.metadata, null, 2)}
+                              </pre>
+                            </details>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : report ? (
               <MarkdownWithCitations markdown={reportSections[tab] || report.markdown} />
             ) : (
               <p className="text-gray-600">Generating report…</p>
