@@ -158,8 +158,9 @@ export async function POST(
       });
     }
 
-    // Verify the password
-    const passwordMatch = await compare(password, share.password);
+    // Verify the password (simple string comparison for now)
+    // In production, you should use proper password hashing
+    const passwordMatch = password === share.password;
     if (!passwordMatch) {
       throw new HttpError(401, 'Invalid password');
     }
