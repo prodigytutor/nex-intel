@@ -13,7 +13,14 @@ export async function GET(
   { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
+    const user = await requireAuth();
     const { teamId } = await params;
+
+    // Check if user is a team member (any role can view member list)
+    const userRole = await getUserTeamRole(user.id, teamId);
+    if (!userRole) {
+      throw new HttpError(403, 'You are not a member of this team');
+    }
 
     const members = await prisma.teamMember.findMany({
       where: { teamId },
@@ -33,8 +40,14 @@ export async function GET(
     });
 
     return NextResponse.json(members);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to fetch team members:', error);
+    if (error instanceof HttpError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.statusCode }
+      );
+    }
     return NextResponse.json(
       { error: 'Failed to fetch team members' },
       { status: 500 }
