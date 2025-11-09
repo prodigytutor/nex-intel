@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { scheduleProjectMonitoring, cancelProjectMonitoring, scheduler } from '@/lib/scheduler';
 import { handleError, createErrorResponse, NotFoundError, ValidationError } from '@/lib/errors';
+import { sendMonitoringSetupNotification } from '@/lib/notifications';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
