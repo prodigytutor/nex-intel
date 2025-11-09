@@ -239,14 +239,29 @@ export default function RunPage({ params }: { params: Promise<{ id: string }> })
         </section>
       )}
  
-      <Tabs tabs={tabs} active={tab} onTab={setTab} />
-      <div className="mt-4">
-        {report ? (
-          <MarkdownWithCitations markdown={reportSections[tab] || report.markdown} />
-        ) : (
-          <p className="text-gray-600">Generating report…</p>
-        )}
-      </div>
+      {viewMode === 'standard' ? (
+        <>
+          <Tabs tabs={tabs} active={tab} onTab={setTab} />
+          <div className="mt-4">
+            {report ? (
+              <MarkdownWithCitations markdown={reportSections[tab] || report.markdown} />
+            ) : (
+              <p className="text-gray-600">Generating report…</p>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="mt-4">
+          {report ? (
+            <InteractiveReportViewer
+              markdown={report.markdown}
+              runId={runId || ''}
+            />
+          ) : (
+            <p className="text-gray-600">Generating report…</p>
+          )}
+        </div>
+      )}
       {/* Export actions */}
       {report && (
         <div className="mt-6 flex gap-3 border-t pt-4">
