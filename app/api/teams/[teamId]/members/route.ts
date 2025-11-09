@@ -4,7 +4,9 @@ import { requireAuth } from '@/lib/auth';
 import {
   requireCanInviteMembers,
   canAssignRole,
-  getUserTeamRole
+  getUserTeamRole,
+  canRemoveMember,
+  canChangeMemberRole
 } from '@/lib/rbac';
 import { HttpError } from '@/lib/http';
 
