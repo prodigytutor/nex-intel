@@ -1,9 +1,11 @@
 'use client';
+import { useState } from 'react';
 import Link from 'next/link';
 import { ThemeToggle } from '@/app/components/ThemeToggle';
 import CreditWidget from '@/app/components/CreditWidget';
 import { AuthButton } from '@/app/components/AuthButton';
 import { OnboardingModal } from '@/app/components/OnboardingModal';
+import { MobileNavigation, MobileNavigationButton } from '@/app/components/MobileNavigation';
 import { useOnboarding } from '@/hooks/useOnboarding';
 
 interface AppLayoutProps {
@@ -12,10 +14,12 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { showOnboarding, closeOnboarding, user } = useOnboarding();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <>
       <div className="min-h-screen grid grid-cols-[260px_1fr]">
+        {/* Desktop Sidebar */}
         <aside className="hidden md:block border-r border-black/10 bg-white">
           <div className="p-4">
             <Link href="/" className="flex items-center gap-2">
@@ -36,11 +40,17 @@ export function AppLayout({ children }: AppLayoutProps) {
           </div>
         </aside>
         <div className="flex flex-col">
-          <Topbar />
+          <Topbar>
+            <MobileNavigationButton onClick={() => setIsMobileMenuOpen(true)} />
+          </Topbar>
           <main className="p-6">{children}</main>
         </div>
       </div>
 
+      {/* Mobile Navigation */}
+      <MobileNavigation isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+
+      {/* Onboarding Modal */}
       <OnboardingModal
         isOpen={showOnboarding}
         onClose={closeOnboarding}
