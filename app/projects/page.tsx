@@ -2,6 +2,8 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { Breadcrumbs } from '@/app/components/Breadcrumbs';
+import { LoadingTable } from '@/app/components/LoadingStates';
+import { useLoading } from '@/app/hooks/useGlobalLoading';
 
 type ProjectRow = {
   id: string;
