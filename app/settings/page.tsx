@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { Breadcrumbs } from '@/app/components/Breadcrumbs';
 
 type Settings = {
   searchProvider?: 'tavily'|'serpapi'|''; tavilyKey?: string; serpapiKey?: string;
