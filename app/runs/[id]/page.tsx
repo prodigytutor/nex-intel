@@ -10,6 +10,7 @@ import { useError } from '@/app/hooks/useGlobalError';
 type Status = { status: string; createdAt: string; completedAt?: string };
 type Report = { headline: string; markdown: string; createdAt: string };
 type Finding = { id: string; kind: 'COMMON_FEATURE'|'GAP'|'DIFFERENTIATOR'|'RISK'|'RECOMMENDATION'; text: string; citations: string[]; confidence: number };
+type AIInsight = { id: string; type: string; title: string; content: string; confidence: number; metadata?: any; createdAt: string };
 
 function kindLabel(k: Finding['kind']) {
   return k === 'COMMON_FEATURE' ? 'Common' : k === 'GAP' ? 'Gap' : k === 'DIFFERENTIATOR' ? 'Differentiator' : k;
