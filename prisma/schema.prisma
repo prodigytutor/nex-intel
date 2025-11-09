@@ -264,6 +264,7 @@ model Report {
   format     String   // MARKDOWN, PDF, NOTION
   createdAt  DateTime @default(now())
   approved   Boolean  @default(false)
+  shares     ReportShare[]
 }
 
 model Job {
