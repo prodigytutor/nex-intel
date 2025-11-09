@@ -27,6 +27,10 @@ export async function POST(_: Request, ctx: { params: Promise<{ id: string }> })
   }
 
   const projectId = (await ctx.params).id;
+
+  // Check if user can edit this project (required to run analysis)
+  await requireCanEditProject(user.id, projectId);
+
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     include: { projectInputs: true }
