@@ -166,8 +166,9 @@ export default function ProjectsPage() {
                 </td>
               </tr>
             ))}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        )}
       </div>
     </main>
   );
