@@ -31,7 +31,14 @@ export async function getCurrentUser() {
   return dbUser;
 }
 
-import { createServerClient } from '@/lib/supabase/server';
-import { prisma } from '@/lib/prisma';
-import { AuthenticationError } from '@/lib/errors';
+/**
+ * Require authentication - throws if not authenticated
+ */
+export async function requireAuth() {
+  const user = await getCurrentUser();
+  if (!user) {
+    throw new AuthenticationError();
+  }
+  return user;
+}
 
