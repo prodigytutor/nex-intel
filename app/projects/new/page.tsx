@@ -132,7 +132,7 @@ export default function NewProject() {
       </section>
 
       <div className="flex gap-2">
-        <button className="btn btn-primary" onClick={submit} disabled={saving}>{saving ? 'Creating…' : 'Create Project'}</button>
+        <button className="btn btn-primary" onClick={submit}>Create Project</button>
       </div>
     </main>
   );
