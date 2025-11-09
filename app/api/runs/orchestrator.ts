@@ -9,6 +9,7 @@ import { makeSearch } from '@/lib/search';
 import { extractCapabilities } from '@/lib/extract/capabilities';
 import { extractPricingV2 } from '@/lib/extract/pricing_v2';
 import { generateMarkdown } from '@/lib/report';
+import { detectSourceChanges, storeChangeDetection, checkForAlerts, scheduler } from '@/lib/monitoring';
 
 type RunStatus = 'NEW' | 'DISCOVERING' | 'EXTRACTING' | 'SYNTHESIZING' | 'QA' | 'COMPLETE' | 'ERROR' | 'SKIPPED';
 
