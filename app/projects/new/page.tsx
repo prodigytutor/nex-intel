@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { Breadcrumbs } from '@/app/components/Breadcrumbs';
 
 export default function NewProject() {
   const [form, setForm] = useState({
