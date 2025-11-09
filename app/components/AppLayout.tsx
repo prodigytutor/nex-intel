@@ -22,9 +22,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <LoadingProvider>
-      <>
-        <div className="min-h-screen grid grid-cols-[260px_1fr]">
+    <ErrorProvider>
+      <ErrorBoundary>
+        <LoadingProvider>
+          <>
+            <div className="min-h-screen grid grid-cols-[260px_1fr]">
         {/* Desktop Sidebar */}
         <aside className="hidden md:block border-r border-black/10 bg-white">
           <div className="p-4">
