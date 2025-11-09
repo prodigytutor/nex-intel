@@ -117,6 +117,7 @@ model User {
   comments      Comment[]
   activities    Activity[]
   notifications Notification[]
+  emailPreferences EmailPreferences?
 }
 
 
