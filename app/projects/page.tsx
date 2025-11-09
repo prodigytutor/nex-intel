@@ -19,6 +19,7 @@ export default function ProjectsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [bulkBusy, setBulkBusy] = useState(false);
+  const { withLoading } = useLoading();
 
   useEffect(() => {
     (async () => {
