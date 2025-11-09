@@ -513,7 +513,48 @@ export async function orchestrateRun(runId: string) {
       }
     });
 
-    // 6) Guardrails (non-fatal)
+    // 6) Change detection for monitored projects
+    await setStatus(runId, 'QA', 'Running change detection…');
+
+    // Check if this is a re-run for change detection
+    const previousRun = await prisma.run.findFirst({
+      where: {
+        projectId: run.projectId,
+        status: 'COMPLETE',
+        createdAt: { lt: run.createdAt }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    if (previousRun) {
+      try {
+        console.log(`[Orchestrator] Running change detection for run ${runId} vs previous ${previousRun.id}`);
+        const changes = await detectSourceChanges(previousRun.id, runId);
+
+        // Store change detection results
+        await storeChangeDetection(run.projectId, previousRun.id, runId, changes);
+
+        // Check for alerts
+        const alerts = await checkForAlerts(run.projectId, changes);
+        if (alerts.length > 0) {
+          console.log(`[Orchestrator] Generated ${alerts.length} alerts for project ${run.projectId}`);
+
+          // TODO: Send email notifications here
+          for (const alert of alerts) {
+            await appendLog(runId, `ALERT: ${alert.message} (${alert.severity})`);
+          }
+        }
+
+        await appendLog(runId, `Change detection completed: ${changes.addedSources.length} added, ${changes.removedSources.length} removed, ${changes.modifiedSources.length} modified`);
+      } catch (error: any) {
+        console.error(`[Orchestrator] Change detection failed:`, error);
+        await appendLog(runId, `Change detection failed: ${error.message}`);
+      }
+    } else {
+      await appendLog(runId, 'No previous runs found for change detection');
+    }
+
+    // 7) Guardrails (non-fatal)
     await setStatus(runId, 'QA', 'Running guardrails…');
     const guard = await runGuardrails({ runId, stalenessDays });
     if (guard.issues.length) {
@@ -522,7 +563,7 @@ export async function orchestrateRun(runId: string) {
       await appendLog(runId, 'Guardrails: All checks passed');
     }
 
-    // 7) Complete
+    // 8) Complete
     await setStatus(runId, 'COMPLETE', `Report ready: ${report.id}`);
     console.log(`[Orchestrator] Run ${runId} completed successfully`);
   } catch (error: any) {
